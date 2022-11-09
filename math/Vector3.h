@@ -17,6 +17,7 @@ class Vector3 {
 
 	float length() const;
 	Vector3& normalize();
+	Vector3 cross(const Vector3& v) const;
 	  
 	// 単項演算子オーバーロード
 	Vector3 operator+() const;

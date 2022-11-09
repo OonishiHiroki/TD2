@@ -31,7 +31,7 @@ class Player {
 	///< summary>
 	///初期化
 	///</summary>
-	void Attack();
+	void Attack(ViewProjection viewProjection_);
 	void Move();
 
 	//キャラの向きに応じた方向に球をだす
@@ -71,6 +71,16 @@ class Player {
 	bool isJump = 0;
 	float airPower = 1.0f;
 	Vector3 viewLength;
+	//移動
+	Vector3 yTmpVec = { 0, 1, 0 };
+	//正面仮ベクトル
+	Vector3 frontTmp;
+	//右ベクトル
+	Vector3 rightVec;
+	//左ベクトル
+	Vector3 leftVec;
+	//正面ベクトル
+	Vector3 frontVec;
 
 	//弾
 	//複数 

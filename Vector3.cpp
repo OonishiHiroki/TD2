@@ -13,6 +13,14 @@ Vector3& Vector3::normalize() {
 	return *this;
 }
 
+Vector3 Vector3::cross(const Vector3& v)const {
+	Vector3 ans;
+
+	ans = { (y * v.z) - (z * v.y),(z * v.x) - (x * v.z), (x * v.y) - (y * v.x) };
+
+	return ans;
+}
+
 
 
 // Vector2 ƒNƒ‰ƒX‚É‘®‚³‚È‚¢ŠÖ”ŒQ

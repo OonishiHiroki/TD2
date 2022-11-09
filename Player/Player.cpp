@@ -81,7 +81,7 @@ void Player::Update(ViewProjection viewProjection_) {
 
 
 	//弾発射処理
-	Attack();
+	Attack(viewProjection_);
 
 	//弾更新
 	//複数
@@ -103,16 +103,30 @@ void Player::Update(ViewProjection viewProjection_) {
 
 void Player::Draw(ViewProjection viewProjection_) {
 	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	//弾描画
+	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
+		bullet->Draw(viewProjection_);
+	}
 }
 
-void Player::Attack() {
-	if (input_->TriggerKey(DIK_SPACE)) {
+void Player::Attack(ViewProjection viewProjection_) {
+	if (input_->TriggerKey(DIK_B)) {
 		//弾の速度
-		const float kBulletSpeed = 1.0f;
-		Vector3 velocity(0, 0, kBulletSpeed);
-
-		//速度ベクトルを自機の向きに合わせて回転させる
-		velocity = bVelocity(velocity, worldTransform_);
+		//yの仮ベクトル
+		yTmpVec = { 0, 1, 0 };
+		yTmpVec.normalize();
+		//正面仮ベクトル
+		frontTmp = worldTransform_.translation_ - viewProjection_.eye;
+		frontTmp.normalize();
+		//右ベクトル
+		rightVec = yTmpVec.cross(frontTmp);
+		rightVec.normalize();
+		//左ベクトル
+		leftVec = frontTmp.cross(yTmpVec);
+		leftVec.normalize();
+		//正面ベクトル
+		frontVec = rightVec.cross(yTmpVec);
+		frontVec.normalize();
 
 		//弾を生成し初期化
 		//複数
@@ -120,7 +134,7 @@ void Player::Attack() {
 
 		//単発
 		/*PlayerBullet* newBullet = new PlayerBullet();*/
-		newBullet->Initialize(model_, AffinTrans::GetWorldtransform(worldTransform_.matWorld_), velocity);
+		newBullet->Initialize(model_, AffinTrans::GetWorldtransform(worldTransform_.matWorld_), frontVec);
 
 		//弾の登録
 	   //複数
@@ -170,8 +184,9 @@ void Player::setparent(WorldTransform* worldTransform) {
 	worldTransform_.parent_ = worldTransform;
 }
 void Player::Move() {
-	//
+	//毎フレーム更新
 	kCharacterSpeed = 0.5f;
+	move = { 0,0,0 };
 
 	//押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_UP)) {
