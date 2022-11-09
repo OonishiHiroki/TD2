@@ -18,7 +18,9 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 void Player::Update(ViewProjection viewProjection_) {
 
-	Move();
+
+	//移動
+	Move(viewProjection_);
 
 	//重力
 	if (jumpPower == 0) {
@@ -62,7 +64,7 @@ void Player::Update(ViewProjection viewProjection_) {
 	viewLength.normalize();
 	//カメラに近づきすぎないように
 	if (viewLength.z >= 0.067) {
-		worldTransform_.translation_.z += kCharacterSpeed * airPower;
+		worldTransform_.translation_ -= move;
 	}
 	
 
@@ -110,40 +112,31 @@ void Player::Draw(ViewProjection viewProjection_) {
 }
 
 void Player::Attack(ViewProjection viewProjection_) {
-	if (input_->TriggerKey(DIK_B)) {
-		//弾の速度
-		//yの仮ベクトル
-		yTmpVec = { 0, 1, 0 };
-		yTmpVec.normalize();
-		//正面仮ベクトル
-		frontTmp = worldTransform_.translation_ - viewProjection_.eye;
-		frontTmp.normalize();
-		//右ベクトル
-		rightVec = yTmpVec.cross(frontTmp);
-		rightVec.normalize();
-		//左ベクトル
-		leftVec = frontTmp.cross(yTmpVec);
-		leftVec.normalize();
-		//正面ベクトル
-		frontVec = rightVec.cross(yTmpVec);
-		frontVec.normalize();
-
-		//弾を生成し初期化
+	if (input_->PushKey(DIK_B)) {
+		if (coolTime == 0) {
+			//弾を生成し初期化
 		//複数
-		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
+			std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
 
-		//単発
-		/*PlayerBullet* newBullet = new PlayerBullet();*/
-		newBullet->Initialize(model_, AffinTrans::GetWorldtransform(worldTransform_.matWorld_), frontVec);
+			//単発
+			/*PlayerBullet* newBullet = new PlayerBullet();*/
+			newBullet->Initialize(model_, AffinTrans::GetWorldtransform(worldTransform_.matWorld_), frontVec);
 
-		//弾の登録
-	   //複数
-		bullets_.push_back(std::move(newBullet));
+			//弾の登録
+		   //複数
+			bullets_.push_back(std::move(newBullet));
 
-		//単発
-		/*bullet_.reset(newBullet);*/
+			//単発
+			/*bullet_.reset(newBullet);*/
+
+			//クールタイムを設定
+			coolTime = 12;
+		}
+		else if (coolTime > 0) {
+			coolTime--;
+		}
+
 	}
-
 }
 
 Vector3 Player::bVelocity(Vector3& velocity, WorldTransform& worldTransform) {
@@ -183,56 +176,43 @@ void Player::OnCollision() {}
 void Player::setparent(WorldTransform* worldTransform) {
 	worldTransform_.parent_ = worldTransform;
 }
-void Player::Move() {
+void Player::Move(ViewProjection viewProjection_) {
 	//毎フレーム更新
-	kCharacterSpeed = 0.5f;
 	move = { 0,0,0 };
+
+	//yの仮ベクトル
+	yTmpVec = { 0, 1, 0 };
+	yTmpVec.normalize();
+	//正面仮ベクトル
+	frontTmp = worldTransform_.translation_ - viewProjection_.eye;
+	frontTmp.normalize();
+	//右ベクトル
+	rightVec = yTmpVec.cross(frontTmp);
+	rightVec.normalize();
+	//左ベクトル
+	leftVec = frontTmp.cross(yTmpVec);
+	leftVec.normalize();
+	//正面ベクトル
+	frontVec = rightVec.cross(yTmpVec);
+	frontVec.normalize();
+	//背面ベクトル
+	behindVec = frontVec * -1;
+	behindVec.normalize();
 
 	//押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_UP)) {
-		move = { 0, 0, kCharacterSpeed * airPower };
-		if (input_->PushKey(DIK_LEFT)) {
-			kCharacterSpeed = 0.3f;
-			move = { -kCharacterSpeed * airPower, 0, kCharacterSpeed * airPower };
-		}
-		else if (input_->PushKey(DIK_RIGHT)) {
-			kCharacterSpeed = 0.3f;
-			move = { kCharacterSpeed * airPower, 0, kCharacterSpeed * airPower };
-		}
+		move = frontVec * adJustMent;
 	}
 	else if (input_->PushKey(DIK_DOWN)) {
-		move = { 0, 0, -kCharacterSpeed * airPower };
-		if (input_->PushKey(DIK_LEFT)) {
-			kCharacterSpeed = 0.3f;
-			move = { -kCharacterSpeed * airPower, 0, -kCharacterSpeed * airPower };
-		}
-		else if (input_->PushKey(DIK_RIGHT)) {
-			kCharacterSpeed = 0.3f;
-			move = { kCharacterSpeed * airPower, 0, -kCharacterSpeed * airPower };
-		}
+		move = behindVec * adJustMent;
 	}
 	if (input_->PushKey(DIK_LEFT)) {
-		move = { -kCharacterSpeed * airPower, 0, 0 };
-		if (input_->PushKey(DIK_UP)) {
-			kCharacterSpeed = 0.3f;
-			move = { -kCharacterSpeed * airPower, 0, kCharacterSpeed * airPower };
-		}
-		else if (input_->PushKey(DIK_DOWN)) {
-			kCharacterSpeed = 0.3f;
-			move = { -kCharacterSpeed * airPower, 0, -kCharacterSpeed * airPower };
-		}
+		move = leftVec * adJustMent;
 	}
 	else if (input_->PushKey(DIK_RIGHT)) {
-		move = { kCharacterSpeed * airPower, 0, 0 };
-		if (input_->PushKey(DIK_UP)) {
-			kCharacterSpeed = 0.3f;
-			move = { kCharacterSpeed * airPower, 0, kCharacterSpeed * airPower };
-		}
-		else if (input_->PushKey(DIK_DOWN)) {
-			kCharacterSpeed = 0.3f;
-			move = { kCharacterSpeed * airPower, 0, -kCharacterSpeed * airPower };
-		}
+		move = rightVec * adJustMent;
 	}
+	move * airPower;
 }
 
 

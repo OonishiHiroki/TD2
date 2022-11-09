@@ -32,7 +32,7 @@ class Player {
 	///初期化
 	///</summary>
 	void Attack(ViewProjection viewProjection_);
-	void Move();
+	void Move(ViewProjection viewProjection_);
 
 	//キャラの向きに応じた方向に球をだす
 	Vector3 bVelocity(Vector3& velocity, WorldTransform& worldTransform);
@@ -64,13 +64,12 @@ class Player {
 	DebugText* debugText_ = nullptr;
 	//キャラクターの移動ベクトル
 	Vector3 move = { 0, 0, 0 };
-	//キャラクターの移動の速さ
-	float kCharacterSpeed = 0.5f;
 	//ジャンプ
 	float jumpPower = 0.0f;
 	bool isJump = 0;
 	float airPower = 1.0f;
 	Vector3 viewLength;
+
 	//移動
 	Vector3 yTmpVec = { 0, 1, 0 };
 	//正面仮ベクトル
@@ -81,6 +80,11 @@ class Player {
 	Vector3 leftVec;
 	//正面ベクトル
 	Vector3 frontVec;
+	//背面ベクトル
+	Vector3 behindVec;
+	float adJustMent = 0.5f;
+	//攻撃クールタイム
+	float coolTime = 0.0f;
 
 	//弾
 	//複数 
