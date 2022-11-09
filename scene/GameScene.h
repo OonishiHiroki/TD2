@@ -168,7 +168,7 @@ private: // メンバ変数
 	//待機タイマー
 	int standTime_ = 0;
 
-	SceneNo sceneNo_ = SceneNo::Title;
+	/*SceneNo sceneNo_ = SceneNo::Title;*/
 
 	/// <summary>
 	/// ゲームシーン用
