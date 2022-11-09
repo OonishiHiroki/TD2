@@ -6,42 +6,65 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 	assert(model);
 	model_ = model;
 	textureHandle_ = textureHandle;
-	
+
 	//シングルインスタンスを取得する
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
 	//ワールド変換の初期化
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = {0, 0, -50};
+	worldTransform_.translation_ = { 0, 0, 0 };
 }
 
-void Player::Update() {
-	
-	//デスフラグの立った弾の削除
-	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) { 
-		return bullet->InDead();  
-	});
+void Player::Update(ViewProjection viewProjection_) {
 
-	
-	//キャラクターの移動ベクトル
-	Vector3 move = {0, 0, 0};
-	//キャラクターの移動の速さ
-	const float kCharacterSpeed = 0.5f;
+	Move();
 
-	//押した方向で移動ベクトルを変更
-	if (input_->PushKey(DIK_UP)) {
-		move = {0, kCharacterSpeed, 0};
-	} else if (input_->PushKey(DIK_DOWN)) {
-		move = {0, -kCharacterSpeed, 0};
+	//重力
+	if (jumpPower == 0) {
+		if (worldTransform_.translation_.y > 0) {
+			worldTransform_.translation_.y -= 0.3f;
+		}
+		else if (worldTransform_.translation_.y <= 0) {
+			worldTransform_.translation_.y = 0.0f;
+			if (isJump == true) {
+				isJump = false;
+			}
+		}
 	}
-	if (input_->PushKey(DIK_LEFT)) {
-		move = {-kCharacterSpeed, 0, 0};
-	} else if (input_->PushKey(DIK_RIGHT)) {
-		move = {kCharacterSpeed, 0, 0};
+
+
+	//ジャンプ
+	if (isJump == false) {
+		if (input_->TriggerKey(DIK_SPACE)) {
+			jumpPower = 0.5f;
+			isJump = true;
+		}
+		airPower = 1.0f;
+	}
+	else {
+		airPower = 0.7f;
+	}
+
+	//ジャンプの力を徐々に強く
+	jumpPower *= 1.1f;
+	//一定までいったら0にする
+	if (jumpPower > 1) {
+		jumpPower = 0;
 	}
 
 	worldTransform_.translation_ += move;
+	worldTransform_.translation_.y += jumpPower;
+
+	//カメラとオブジェクトの距離を測る
+	viewLength = worldTransform_.translation_ - viewProjection_.eye;
+	viewLength.length();
+	viewLength.normalize();
+	//カメラに近づきすぎないように
+	if (viewLength.z >= 0.067) {
+		worldTransform_.translation_.z += kCharacterSpeed * airPower;
+	}
+	
 
 	//行列更新
 	AffinTrans::affin(worldTransform_);
@@ -50,22 +73,12 @@ void Player::Update() {
 
 
 	const float kMoveLimitX = 35;
-	const float kMoveLimitY = 18;
 
 	//範囲を超えない処理
 	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
 	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
-	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
-	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
 
-	const float kChestRotSpeed = 0.05f;
 
-	//押した方向で移動ベクトルを変更
-	if (input_->PushKey(DIK_J)) {
-		worldTransform_.rotation_.y -= kChestRotSpeed;
-	} else if (input_->PushKey(DIK_K)) {
-		worldTransform_.rotation_.y += kChestRotSpeed;
-	}
 
 	//弾発射処理
 	Attack();
@@ -88,21 +101,11 @@ void Player::Update() {
 	  worldTransform_.translation_.z);*/
 }
 
-void Player::Draw(ViewProjection viewProjection_) { 
+void Player::Draw(ViewProjection viewProjection_) {
 	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
-	//弾更新
-	//複数
-	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
-		bullet->Draw(viewProjection_);
-	}
-
-	//単発
-	/*if (bullet_) {
-		bullet_->Draw(viewProjection_);
-	}*/
 }
 
-void Player::Attack() { 
+void Player::Attack() {
 	if (input_->TriggerKey(DIK_SPACE)) {
 		//弾の速度
 		const float kBulletSpeed = 1.0f;
@@ -119,8 +122,8 @@ void Player::Attack() {
 		/*PlayerBullet* newBullet = new PlayerBullet();*/
 		newBullet->Initialize(model_, AffinTrans::GetWorldtransform(worldTransform_.matWorld_), velocity);
 
-		 //弾の登録
-		//複数
+		//弾の登録
+	   //複数
 		bullets_.push_back(std::move(newBullet));
 
 		//単発
@@ -129,22 +132,22 @@ void Player::Attack() {
 
 }
 
-Vector3 Player::bVelocity(Vector3& velocity, WorldTransform& worldTransform) { 
-	
-	Vector3 result = {0, 0, 0};
+Vector3 Player::bVelocity(Vector3& velocity, WorldTransform& worldTransform) {
 
-	
+	Vector3 result = { 0, 0, 0 };
+
+
 	result.x = velocity.x * worldTransform.matWorld_.m[0][0] +
-	           velocity.y * worldTransform.matWorld_.m[1][0] +
-	           velocity.z * worldTransform.matWorld_.m[2][0];
+		velocity.y * worldTransform.matWorld_.m[1][0] +
+		velocity.z * worldTransform.matWorld_.m[2][0];
 
 	result.y = velocity.x * worldTransform.matWorld_.m[0][1] +
-	           velocity.y * worldTransform.matWorld_.m[1][1] +
-	           velocity.z * worldTransform.matWorld_.m[2][1];
+		velocity.y * worldTransform.matWorld_.m[1][1] +
+		velocity.z * worldTransform.matWorld_.m[2][1];
 
 	result.z = velocity.x * worldTransform.matWorld_.m[0][2] +
-	           velocity.y * worldTransform.matWorld_.m[1][2] +
-	           velocity.z * worldTransform.matWorld_.m[2][2];
+		velocity.y * worldTransform.matWorld_.m[1][2] +
+		velocity.z * worldTransform.matWorld_.m[2][2];
 
 
 	return result;
@@ -158,13 +161,63 @@ Vector3 Player::GetWorldPosition2() {
 	worldPos.y = worldTransform_.matWorld_.m[3][1];
 	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
-	return worldPos; 
+	return worldPos;
 }
 
 void Player::OnCollision() {}
 
-void Player::setparent(WorldTransform* worldTransform) { 
-	worldTransform_.parent_ = worldTransform; 
+void Player::setparent(WorldTransform* worldTransform) {
+	worldTransform_.parent_ = worldTransform;
+}
+void Player::Move() {
+	//
+	kCharacterSpeed = 0.5f;
+
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_UP)) {
+		move = { 0, 0, kCharacterSpeed * airPower };
+		if (input_->PushKey(DIK_LEFT)) {
+			kCharacterSpeed = 0.3f;
+			move = { -kCharacterSpeed * airPower, 0, kCharacterSpeed * airPower };
+		}
+		else if (input_->PushKey(DIK_RIGHT)) {
+			kCharacterSpeed = 0.3f;
+			move = { kCharacterSpeed * airPower, 0, kCharacterSpeed * airPower };
+		}
+	}
+	else if (input_->PushKey(DIK_DOWN)) {
+		move = { 0, 0, -kCharacterSpeed * airPower };
+		if (input_->PushKey(DIK_LEFT)) {
+			kCharacterSpeed = 0.3f;
+			move = { -kCharacterSpeed * airPower, 0, -kCharacterSpeed * airPower };
+		}
+		else if (input_->PushKey(DIK_RIGHT)) {
+			kCharacterSpeed = 0.3f;
+			move = { kCharacterSpeed * airPower, 0, -kCharacterSpeed * airPower };
+		}
+	}
+	if (input_->PushKey(DIK_LEFT)) {
+		move = { -kCharacterSpeed * airPower, 0, 0 };
+		if (input_->PushKey(DIK_UP)) {
+			kCharacterSpeed = 0.3f;
+			move = { -kCharacterSpeed * airPower, 0, kCharacterSpeed * airPower };
+		}
+		else if (input_->PushKey(DIK_DOWN)) {
+			kCharacterSpeed = 0.3f;
+			move = { -kCharacterSpeed * airPower, 0, -kCharacterSpeed * airPower };
+		}
+	}
+	else if (input_->PushKey(DIK_RIGHT)) {
+		move = { kCharacterSpeed * airPower, 0, 0 };
+		if (input_->PushKey(DIK_UP)) {
+			kCharacterSpeed = 0.3f;
+			move = { kCharacterSpeed * airPower, 0, kCharacterSpeed * airPower };
+		}
+		else if (input_->PushKey(DIK_DOWN)) {
+			kCharacterSpeed = 0.3f;
+			move = { kCharacterSpeed * airPower, 0, -kCharacterSpeed * airPower };
+		}
+	}
 }
 
 

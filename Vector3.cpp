@@ -1,6 +1,20 @@
 #include "Vector3.h"
 #include <cmath>
 
+float Vector3::length()const {
+	return sqrt(x * x) + (y * y) + (z * z);
+}
+
+Vector3& Vector3::normalize() {
+	float len = length();
+	if (len != 0) {
+		return *this /= length();
+	}
+	return *this;
+}
+
+
+
 // Vector2 ƒNƒ‰ƒX‚É‘®‚³‚È‚¢ŠÖ”ŒQ
 // 2€‰‰Zq
 const Vector3 operator+(const Vector3& v1, const Vector3& v2) {

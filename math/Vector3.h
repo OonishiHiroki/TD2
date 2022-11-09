@@ -14,6 +14,9 @@ class Vector3 {
 	// コンストラクタ
 	Vector3();                          // 零ベクトルとする
 	Vector3(float x, float y, float z); // x成分, y成分, z成分 を指定しての生成
+
+	float length() const;
+	Vector3& normalize();
 	  
 	// 単項演算子オーバーロード
 	Vector3 operator+() const;
