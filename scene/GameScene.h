@@ -139,10 +139,12 @@ private: // メンバ変数
 	Player* player_ = nullptr;
 	int playerRadius = 1;
 	int playerBulletRadius = 1;
+
 	//敵キャラ
 	std::list<std::unique_ptr<Enemy>> enemys_;
 	int enemyRadius = 1;
 	int enemyBulletRadius = 1;
+
 	//敵の撃破カウント
 	int enemyDefeat = 0;
 	//弾 複数

@@ -23,7 +23,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// ゲームウィンドウの作成
 	win = WinApp::GetInstance();
-	win->CreateGameWindow("LE2B_16_ナガハマ_コウキ_TD");
+	win->CreateGameWindow("TD2");
 
 	// DirectX初期化処理
 	dxCommon = DirectXCommon::GetInstance();

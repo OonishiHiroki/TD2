@@ -67,6 +67,4 @@ class Player {
 	//•¡” 
 	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 
-	
-
 };

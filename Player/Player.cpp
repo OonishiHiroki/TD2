@@ -13,7 +13,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 	//ワールド変換の初期化
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = {0, 0, -50};
+	worldTransform_.translation_ = {0, 0, -5};
 }
 
 void Player::Update() {
@@ -22,7 +22,6 @@ void Player::Update() {
 	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) { 
 		return bullet->InDead();  
 	});
-
 	
 	//キャラクターの移動ベクトル
 	Vector3 move = {0, 0, 0};
@@ -81,15 +80,17 @@ void Player::Update() {
 		bullet_->Update();
 	}*/
 
-	/*debugText_->SetPos(50, 150);
+	debugText_->SetPos(50, 150);
 	debugText_->Printf(
 	  "translation : %f,%f,%f", worldTransform_.translation_.x,
 	  worldTransform_.translation_.y,
-	  worldTransform_.translation_.z);*/
+	  worldTransform_.translation_.z);
 }
 
 void Player::Draw(ViewProjection viewProjection_) { 
+
 	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+
 	//弾更新
 	//複数
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {

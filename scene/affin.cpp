@@ -6,7 +6,7 @@ const float PI = 3.141592f;
 Matrix4 AffinTrans::Initialize() {
 	Matrix4 matInitialize = {
 		1.0f, 0.0f, 0.0f, 0.0f, 
-		0.0f, 1.0f, 0.0f, 0.0f,                
+		0.0f, 1.0f, 0.0f, 0.0f, 
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	};
@@ -47,6 +47,7 @@ Matrix4 AffinTrans::Rotation(Vector3 rotation, int X_1_Y_2_Z_3_XYZ_6) {
 		rotationX *= matRotX;
 
 		return rotationX;
+
 	} else if (X_1_Y_2_Z_3_XYZ_6 == rotationY) {
 		Matrix4 matRotY = {
 			cos(rotation.y), 0.0f, -sin(rotation.y), 0.0f, 
@@ -58,6 +59,7 @@ Matrix4 AffinTrans::Rotation(Vector3 rotation, int X_1_Y_2_Z_3_XYZ_6) {
 		rotationY *= matRotY;
 
 		return rotationY;
+
 	} else if (X_1_Y_2_Z_3_XYZ_6 == rotationZ) {
 		Matrix4 matRotZ = {
 		  cos(rotation.z),sin(rotation.z),0.0f,0.0f,

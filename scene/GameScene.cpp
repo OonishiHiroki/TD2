@@ -145,9 +145,11 @@ void GameScene::Update() {
 	//カメラ
 	viewProjection_.eye.x = -direction.x * 80 + target_.translation_.x;
 
+	//viewProjection_.eye.y = -direction.y * 80 + target_.translation_.y;
+
 	viewProjection_.eye.z = -direction.z * 80 + target_.translation_.z;
 
-	viewProjection_.target = { direction.x * 5 + target_.translation_.x, 0, direction.z * 5 + target_.translation_.z };
+	viewProjection_.target = { direction.x * 5 + target_.translation_.x,0, direction.z * 5 + target_.translation_.z };
 
 	//デスフラグの立った弾の削除
 	enemybullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) { return bullet->InDead(); });
@@ -240,14 +242,14 @@ void GameScene::Update() {
 	/*debugText_->SetPos(50, 70);
 	debugText_->Printf(
 		"target:(%f,%f,%f)", target_.rotation_.x, target_.rotation_.y,
-		target_.rotation_.z);
+		target_.rotation_.z);*/
 
 	debugText_->SetPos(50, 90);
 	debugText_->Printf(
 		"up:(%f,%f,%f)", viewProjection_.up.x, viewProjection_.up.y, viewProjection_.up.z);
 
 	debugText_->SetPos(50, 110);
-	debugText_->Printf("%d", enemys_.size());*/
+	debugText_->Printf("%d", enemys_.size());
 
 #pragma endregion
 }
@@ -432,7 +434,7 @@ void GameScene::LoadEnemyPopData() {
 
 	//ファイルを開く
 	std::ifstream file;
-	file.open("Resources/enemyPop2.csv");
+	file.open("Resources/enemyPop3.csv");
 
 	assert(file.is_open());
 
