@@ -79,7 +79,7 @@ void GameScene::Initialize() {
 	target_.matWorld_ = MathUtility::Matrix4Identity();
 
 	//カメラ
-	viewProjection_.eye = { 0.0f, 0.0f, -10.0f };
+	viewProjection_.eye = { 0.0f, 2.5f, -30.0f };
 	viewProjection_.target = target_.translation_;
 
 	//ビュープロジェクションの初期化
@@ -102,155 +102,7 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-
-	const float rSpeed = 0.02f;
-
-	if (input_->PushKey(DIK_D)) {
-		target_.rotation_.y += rSpeed;
-	}
-	else if (input_->PushKey(DIK_A)) {
-		target_.rotation_.y += -rSpeed;
-	}
-
-	//単位ベクトルの向き
-	Vector3 direction = { sinf(target_.rotation_.y), 0, cosf(target_.rotation_.y) };
-
-	//ブーメラン横幅調整用変数
-	float boomerangWidth = 0.8f;
-
-	// ----- ベクトル ----- //
-	Vector3 frontV = Vector3(
-		viewProjection_.eye.x - viewProjection_.target.x,
-		viewProjection_.eye.y - viewProjection_.target.y,
-		viewProjection_.eye.z - viewProjection_.target.z);
-
-	Vector3 sideV = Vector3(
-		boomerangWidth * frontV.z, 0, -boomerangWidth * frontV.x);
-
-	//カメラターゲット
-	target_.matWorld_ = MathUtility::Matrix4Identity();
-
-	target_.matWorld_ = RotationYMatrix4(target_.matWorld_, target_.rotation_);
-
-	//ブーメラン横幅
-	targetSide1.translation_ = { -sideV.x, target_.translation_.y + 3,-sideV.z };
-	targetSide2.translation_ = { sideV.x ,target_.translation_.y + 3,sideV.z };
-
-	targetSide1.matWorld_ = MathUtility::Matrix4Identity();
-	targetSide1.matWorld_ = MoveMatrix4(targetSide1.matWorld_, targetSide1.translation_);
-
-	targetSide2.matWorld_ = MathUtility::Matrix4Identity();
-	targetSide2.matWorld_ = MoveMatrix4(targetSide2.matWorld_, targetSide2.translation_);
-
-	//カメラ
-	viewProjection_.eye.x = -direction.x * 80 + target_.translation_.x;
-
-	//viewProjection_.eye.y = -direction.y * 80 + target_.translation_.y;
-
-	viewProjection_.eye.z = -direction.z * 80 + target_.translation_.z;
-
-	viewProjection_.target = { direction.x * 5 + target_.translation_.x,0, direction.z * 5 + target_.translation_.z };
-
-	//デスフラグの立った弾の削除
-	enemybullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) { return bullet->InDead(); });
-
-	switch (sceneNo_) {
-		case SceneNo::Title: //タイトル
-			if (input_->PushKey(DIK_E) && sceneNo_ == SceneNo::Title) {
-				sceneNo_ = SceneNo::Clear;
-			}
-			break;
-
-		case SceneNo::Game: //射撃
-			break;
-		case SceneNo::Clear: //クリア
-			break;
-	}
-
-	//自キャラの更新
-	player_->Update();
-
-	//敵発生
-	UpdataEnemyPopCommands();
-
-	//敵の更新
-	for (std::unique_ptr<Enemy>& enemy_ : enemys_) {
-		enemy_->SetGameScene(this);
-		enemy_->Update();
-	}
-
-	//弾更新
-	//複数
-	for (std::unique_ptr<EnemyBullet>& bullet : enemybullets_) {
-		bullet->Update();
-	}
-
-	// ----- ベジエ ここから ----- //
-
-	// BP = Boomerang Point
-	Vector3 BP1 = { viewProjection_.eye.x, viewProjection_.eye.y,viewProjection_.eye.z };
-
-	//通常ブーメラン
-	Vector3 BP2 = targetSide1.translation_;
-	Vector3 BP3 = targetSide2.translation_;
-
-	//戻りブメ
-	/*Vector3 BP2 = { viewProjection_.target.x, viewProjection_.target.y + 3, viewProjection_.target.z};
-	Vector3 BP3 = { viewProjection_.target.x, viewProjection_.target.y + 3, viewProjection_.target.z};*/
-
-	Vector3 BP4 = BP1;
-
-	if (input_->PushKey(DIK_SPACE)) {
-		bezierMode = TRUE;
-	}
-	if (bezierMode == TRUE) {
-		timer++;
-		t = (1.0 / splitNum) * timer;
-		boomerang_.rotation_.y++;
-		if (timer >= splitNum) {
-			boomerang_.rotation_.y = 0;
-			timer = 0;
-			bezierMode = FALSE;
-		}
-	}
-
-	//ベジェ関数
-	boomerang_.translation_ = HalfwayPoint(BP1, BP2, BP3, BP4, t);
-
-	//ブーメランの行列
-	boomerang_.matWorld_ = MathUtility::Matrix4Identity();
-	boomerang_.matWorld_ = ScaleMatrix4(boomerang_.matWorld_, boomerang_.scale_);
-	boomerang_.matWorld_ = RotationYMatrix4(boomerang_.matWorld_, boomerang_.rotation_);
-	boomerang_.matWorld_ = MoveMatrix4(boomerang_.matWorld_, boomerang_.translation_);
-
-	boomerang_.TransferMatrix();
-
-	target_.TransferMatrix();
-
-	targetSide1.TransferMatrix();
-	targetSide2.TransferMatrix();
-
-	// ---- ベジエ関係 ここまで ---- //
-
-	//行列の再計算
-	viewProjection_.UpdateMatrix();
-
-	CheckAllCollisions();
-
-	//デバッグ用表示
-#pragma region debugText
-	/*debugText_->SetPos(50, 70);
-	debugText_->Printf(
-		"target:(%f,%f,%f)", target_.rotation_.x, target_.rotation_.y,
-		target_.rotation_.z);*/
-
-	debugText_->SetPos(50, 90);
-	debugText_->Printf(
-		"up:(%f,%f,%f)", viewProjection_.up.x, viewProjection_.up.y, viewProjection_.up.z);
-
-	debugText_->SetPos(50, 110);
-	debugText_->Printf("%d", enemys_.size());
-
+	player_->Update(viewProjection_);
 #pragma endregion
 }
 
@@ -267,23 +119,23 @@ void GameScene::Draw() {
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
 
-	switch (sceneNo_) {
-		case SceneNo::Title: //タイトル
-			spriteTitle->Draw();
-			break;
-		case SceneNo::Operate: //チュートリアル
-			/*player_->DrawUI();*/
-			break;
-		case SceneNo::Game: //射撃
-			/*player_->DrawUI();*/
-			break;
-		case SceneNo::Clear: //クリア
-			spriteClear->Draw();
-			break;
-		case SceneNo::Over: //オーバー
-			spriteOver->Draw();
-			break;
-	}
+	//switch (sceneNo_) {
+	//	case SceneNo::Title: //タイトル
+	//		spriteTitle->Draw();
+	//		break;
+	//	case SceneNo::Operate: //チュートリアル
+	//		/*player_->DrawUI();*/
+	//		break;
+	//	case SceneNo::Game: //射撃
+	//		/*player_->DrawUI();*/
+	//		break;
+	//	case SceneNo::Clear: //クリア
+	//		spriteClear->Draw();
+	//		break;
+	//	case SceneNo::Over: //オーバー
+	//		spriteOver->Draw();
+	//		break;
+	//}
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -300,19 +152,7 @@ void GameScene::Draw() {
 	/// </summary>
 
 	skydome_->Draw(viewProjection_);
-	for (std::unique_ptr<Enemy>& enemy_ : enemys_) {
-		enemy_->Draw(viewProjection_);
-	}
-
-	model_->Draw(boomerang_, viewProjection_, textureHandle_);
-
-	//ベジェ(点2と点3の描画)目安がわかるよう
-	/*model_->Draw(targetSide1, viewProjection_, textureHandle_);
-	model_->Draw(targetSide2, viewProjection_, textureHandle_);*/
-
-	for (std::unique_ptr<EnemyBullet>& bullet : enemybullets_) {
-		bullet->Draw(viewProjection_);
-	}
+	player_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

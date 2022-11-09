@@ -3,7 +3,7 @@
 #include "GameScene.h"
 #include "TextureManager.h"
 #include "WinApp.h"
-#include "AxisIndicator.h"
+//#include "AxisIndicator.h"
 #include "PrimitiveDrawer.h"
 #include "Player.h"
 #include "FPS.h"
@@ -16,7 +16,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Input* input = nullptr;
 	Audio* audio = nullptr;
 	DebugText* debugText = nullptr;
-	AxisIndicator* axisIndicator = nullptr;
+	/*AxisIndicator* axisIndicator = nullptr;*/
 	PrimitiveDrawer* primitiveDrawer = nullptr;
 	GameScene* gameScene = nullptr;
 	FPS* fps = new FPS;
@@ -53,8 +53,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Model::StaticInitialize();
 
 	// 軸方向表示初期化
-	axisIndicator = AxisIndicator::GetInstance();
-	axisIndicator->Initialize();
+	/*axisIndicator = AxisIndicator::GetInstance();
+	axisIndicator->Initialize();*/
 
 	primitiveDrawer = PrimitiveDrawer::GetInstance();
 	primitiveDrawer->Initialize();
@@ -84,7 +84,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// ゲームシーンの毎フレーム処理
 		gameScene->Update();
 		// 軸表示の更新
-		axisIndicator->Update();
+		/*axisIndicator->Update();*/
 
 		//----------------------------------------------//
 
@@ -95,7 +95,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// ゲームシーンの描画
 		gameScene->Draw();
 		// 軸表示の描画
-		axisIndicator->Draw();
+		/*axisIndicator->Draw();*/
 		// プリミティブ描画のリセット
 		primitiveDrawer->Reset();
 		// 描画終了
