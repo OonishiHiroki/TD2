@@ -1,5 +1,4 @@
 #include "Player.h"
-#include "Enemy.h"
 
 void Player::Initialize(Model* model, uint32_t textureHandle) {
 	//NULLポインタチェック
@@ -64,9 +63,14 @@ void Player::Update(ViewProjection viewProjection_) {
 	viewLength.normalize();
 	//カメラに近づきすぎないように
 	if (viewLength.z >= 0.067) {
-		worldTransform_.translation_ -= move;
+		if (isPushZ == true) {
+			worldTransform_.translation_ -= move;
+		}
+		else {
+			worldTransform_.translation_ += frontVec * 0.02;
+		}
 	}
-	
+
 
 	//行列更新
 	AffinTrans::affin(worldTransform_);
@@ -91,16 +95,11 @@ void Player::Update(ViewProjection viewProjection_) {
 		bullet->Update();
 	}
 
-	//単発
-	/*if (bullet_) {
-		bullet_->Update();
-	}*/
-
 	debugText_->SetPos(50, 150);
 	debugText_->Printf(
-	  "translation : %f,%f,%f", worldTransform_.translation_.x,
-	  worldTransform_.translation_.y,
-	  worldTransform_.translation_.z);
+		"translation : %f,%f,%f", worldTransform_.translation_.x,
+		worldTransform_.translation_.y,
+		worldTransform_.translation_.z);
 }
 
 void Player::Draw(ViewProjection viewProjection_) {
@@ -205,14 +204,19 @@ void Player::Move(ViewProjection viewProjection_) {
 	}
 	else if (input_->PushKey(DIK_DOWN)) {
 		move = behindVec * adJustMent;
+		isPushZ = true;
 	}
+	else {
+		isPushZ = false;
+	}
+
 	if (input_->PushKey(DIK_LEFT)) {
 		move = leftVec * adJustMent;
 	}
 	else if (input_->PushKey(DIK_RIGHT)) {
 		move = rightVec * adJustMent;
 	}
-	move * airPower;
+	move* airPower;
 }
 
 

@@ -52,7 +52,7 @@ class Player {
 
 	
 
-  private:
+public:
 	//ワールド変換データ
 	WorldTransform worldTransform_;
 	//モデル
@@ -86,6 +86,7 @@ class Player {
 	//攻撃クールタイム
 	float coolTime = 0.0f;
 
+	bool isPushZ = false;
 	//弾
 	//複数 
 	std::list<std::unique_ptr<PlayerBullet>> bullets_;

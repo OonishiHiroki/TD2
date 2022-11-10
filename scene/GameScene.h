@@ -12,7 +12,7 @@
 #include "WorldTransform.h"
 #include "affin.h"
 #include "Player.h"
-#include "Enemy.h"
+#include "Boss.h"
 #include "Skydome.h"
 #include "RailCamera.h"
 #include "EnemyBullet.h"
@@ -77,9 +77,6 @@ public:
 	/// </summary>
 	void GenerEnemy(Vector3 EnemyPos);
 
-	//弾リストを取得
-	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return enemybullets_; }
-
 	//シーン切り替え
 	enum class SceneNo {
 		Title, //タイトル
@@ -140,15 +137,11 @@ private: // メンバ変数
 	int playerRadius = 1;
 	int playerBulletRadius = 1;
 
-	//敵キャラ
-	std::list<std::unique_ptr<Enemy>> enemys_;
-	int enemyRadius = 1;
-	int enemyBulletRadius = 1;
-
-	//敵の撃破カウント
-	int enemyDefeat = 0;
-	//弾 複数
-	std::list<std::unique_ptr<EnemyBullet>> enemybullets_;
+	//ボス
+	Boss* boss_ = nullptr;
+	int bossRadius = 5;
+	
+	
 
 	//スカイドーム
 	Skydome* skydome_ = nullptr;
@@ -157,9 +150,6 @@ private: // メンバ変数
 
 	//レールカメラ
 	RailCamera* railCamera_ = nullptr;
-
-	// 敵発生コマンド
-	std::stringstream enemyPopCommands;
 
 	Vector3 vector3(float x, float y, float z);
 	Vector4 vector4(int x, int y, int z, int w);

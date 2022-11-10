@@ -3,7 +3,9 @@
 #include <GameScene.h>
 #include <cmath>
 
-void Enemy::Initialize(Model* model, uint32_t textureHandle, Vector3 vector3) {
+Enemy::Enemy() {}
+
+void Enemy::Initialize(Model* model, uint32_t textureHandle) {
 	// NULLポインタチェック
 	assert(model);
 	model_ = model;
@@ -15,42 +17,43 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle, Vector3 vector3) {
 
 	//ワールド変換の初期化
 	worldTransform_.Initialize();
+	worldTransform_.scale_ = { 5,5,5 };
 
 	//初期座標をセット
-	worldTransform_.translation_ = vector3;
+	worldTransform_.translation_ = { 0,0,30 };
 }
 
 void Enemy::Update() {
 
-	//敵の移動の速さ
-	const float kCharacterSpeed = 0.09f;
-	const float kCharacterSpeed2 = 0.1f;
+	////敵の移動の速さ
+	//const float kCharacterSpeed = 0.09f;
+	//const float kCharacterSpeed2 = 0.1f;
 
 
-	//行列更新
-	AffinTrans::affin(worldTransform_);
+	////行列更新
+	//AffinTrans::affin(worldTransform_);
 
-	worldTransform_.TransferMatrix();
+	//worldTransform_.TransferMatrix();
 
-	//移動(ベクトルを加算)
-	if (isChangeFlag == 0) {
-		worldTransform_.translation_ += {kCharacterSpeed, 0, 0};
-	}
-	else if (isChangeFlag == 1) {
-		worldTransform_.translation_ += {-kCharacterSpeed2, 0, 0};
-	}
+	////移動(ベクトルを加算)
+	//if (isChangeFlag == 0) {
+	//	worldTransform_.translation_ += {kCharacterSpeed, 0, 0};
+	//}
+	//else if (isChangeFlag == 1) {
+	//	worldTransform_.translation_ += {-kCharacterSpeed2, 0, 0};
+	//}
 
-	if (worldTransform_.translation_.x >= 8.0f && isChangeFlag == 0) {
-		isChangeFlag = 1;
-	}
-	else if (worldTransform_.translation_.x <= -8.0f && isChangeFlag == 1) {
-		isChangeFlag = 0;
-	}
+	//if (worldTransform_.translation_.x >= 8.0f && isChangeFlag == 0) {
+	//	isChangeFlag = 1;
+	//}
+	//else if (worldTransform_.translation_.x <= -8.0f && isChangeFlag == 1) {
+	//	isChangeFlag = 0;
+	//}
 
-	/*debugText_->SetPos(50, 250);
+	debugText_->SetPos(50, 250);
 	debugText_->Printf(
 		"Enemytranslation : %f,%f,%f", worldTransform_.translation_.x, worldTransform_.translation_.y,
-		worldTransform_.translation_.z);*/
+		worldTransform_.translation_.z);
 }
 
 void Enemy::Draw(ViewProjection viewProjection_) {
