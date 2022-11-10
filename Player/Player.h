@@ -21,7 +21,7 @@ class Player {
 	///< summary>
 	///初期化
 	///</summary>
-	void Update(ViewProjection viewProjection_);
+	void Update(ViewProjection viewProjection_,Vector3 boss);
 
 	///< summary>
 	///初期化
@@ -31,7 +31,7 @@ class Player {
 	///< summary>
 	///初期化
 	///</summary>
-	void Attack(ViewProjection viewProjection_);
+	void Attack(ViewProjection viewProjection_,Vector3 boss);
 	void Move(ViewProjection viewProjection_);
 
 	//キャラの向きに応じた方向に球をだす
@@ -52,7 +52,7 @@ class Player {
 
 	
 
-  private:
+public:
 	//ワールド変換データ
 	WorldTransform worldTransform_;
 	//モデル
@@ -86,6 +86,7 @@ class Player {
 	//攻撃クールタイム
 	float coolTime = 0.0f;
 
+	bool isPushZ = false;
 	//弾
 	//複数 
 	std::list<std::unique_ptr<PlayerBullet>> bullets_;

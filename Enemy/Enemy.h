@@ -6,7 +6,7 @@
 #include <WorldTransform.h>
 #include <affin.h>
 #include <cassert>
-#include "EnemyBullet.h"
+//#include "EnemyBullet.h"
 #include <list>
 class Player;
 
@@ -14,10 +14,11 @@ class GameScene;
 
 class Enemy {
 public:
+	Enemy();
 	///< summary>
 	///‰Šú‰»
 	///</summary>
-	void Initialize(Model* model, uint32_t textureHandle, Vector3 vector3);
+	void Initialize(Model* model, uint32_t textureHandle);
 
 	///< summary>
 	///‰Šú‰»

@@ -1,5 +1,4 @@
 #include "Player.h"
-#include "Enemy.h"
 
 void Player::Initialize(Model* model, uint32_t textureHandle) {
 	//NULLポインタチェック
@@ -13,10 +12,10 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 	//ワールド変換の初期化
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = { 0, 0, 0 };
+	worldTransform_.translation_ = { 0, 0, -10 };
 }
 
-void Player::Update(ViewProjection viewProjection_) {
+void Player::Update(ViewProjection viewProjection_,Vector3 boss) {
 
 
 	//移動
@@ -64,9 +63,14 @@ void Player::Update(ViewProjection viewProjection_) {
 	viewLength.normalize();
 	//カメラに近づきすぎないように
 	if (viewLength.z >= 0.067) {
-		worldTransform_.translation_ -= move;
+		if (isPushZ == true) {
+			worldTransform_.translation_ -= move;
+		}
+		else {
+			worldTransform_.translation_ += frontVec * 0.02;
+		}
 	}
-	
+
 
 	//行列更新
 	AffinTrans::affin(worldTransform_);
@@ -83,7 +87,7 @@ void Player::Update(ViewProjection viewProjection_) {
 
 
 	//弾発射処理
-	Attack(viewProjection_);
+	Attack(viewProjection_,boss);
 
 	//弾更新
 	//複数
@@ -91,16 +95,11 @@ void Player::Update(ViewProjection viewProjection_) {
 		bullet->Update();
 	}
 
-	//単発
-	/*if (bullet_) {
-		bullet_->Update();
-	}*/
-
 	debugText_->SetPos(50, 150);
 	debugText_->Printf(
-	  "translation : %f,%f,%f", worldTransform_.translation_.x,
-	  worldTransform_.translation_.y,
-	  worldTransform_.translation_.z);
+		"translation : %f,%f,%f", worldTransform_.translation_.x,
+		worldTransform_.translation_.y,
+		worldTransform_.translation_.z);
 }
 
 void Player::Draw(ViewProjection viewProjection_) {
@@ -111,7 +110,15 @@ void Player::Draw(ViewProjection viewProjection_) {
 	}
 }
 
-void Player::Attack(ViewProjection viewProjection_) {
+void Player::Attack(ViewProjection viewProjection_,Vector3 boss) {
+	Vector3 bulletVecTmp = boss - worldTransform_.translation_;
+	bulletVecTmp.normalize();
+	//右ベクトル
+	Vector3 bulletRight = yTmpVec.cross(bulletVecTmp);
+	bulletRight.normalize();
+	//正面ベクトル
+	Vector3 bulletFront = bulletRight.cross(yTmpVec);
+	bulletFront.normalize();
 	if (input_->PushKey(DIK_B)) {
 		if (coolTime == 0) {
 			//弾を生成し初期化
@@ -120,7 +127,7 @@ void Player::Attack(ViewProjection viewProjection_) {
 
 			//単発
 			/*PlayerBullet* newBullet = new PlayerBullet();*/
-			newBullet->Initialize(model_, AffinTrans::GetWorldtransform(worldTransform_.matWorld_), frontVec);
+			newBullet->Initialize(model_, AffinTrans::GetWorldtransform(worldTransform_.matWorld_), bulletFront);
 
 			//弾の登録
 		   //複数
@@ -130,7 +137,7 @@ void Player::Attack(ViewProjection viewProjection_) {
 			/*bullet_.reset(newBullet);*/
 
 			//クールタイムを設定
-			coolTime = 12;
+			coolTime = 10;
 		}
 		else if (coolTime > 0) {
 			coolTime--;
@@ -205,14 +212,19 @@ void Player::Move(ViewProjection viewProjection_) {
 	}
 	else if (input_->PushKey(DIK_DOWN)) {
 		move = behindVec * adJustMent;
+		isPushZ = true;
 	}
+	else {
+		isPushZ = false;
+	}
+
 	if (input_->PushKey(DIK_LEFT)) {
 		move = leftVec * adJustMent;
 	}
 	else if (input_->PushKey(DIK_RIGHT)) {
 		move = rightVec * adJustMent;
 	}
-	move * airPower;
+	move* airPower;
 }
 
 
