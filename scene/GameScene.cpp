@@ -107,7 +107,7 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	player_->Update(viewProjection_);
+	player_->Update(viewProjection_,boss_->GetWorldPos());
 	boss_->Update(player_->GetWorldPosition2());
 
 	//カメラお試し

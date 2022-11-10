@@ -12,10 +12,10 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 	//ワールド変換の初期化
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = { 0, 0, 0 };
+	worldTransform_.translation_ = { 0, 0, -10 };
 }
 
-void Player::Update(ViewProjection viewProjection_) {
+void Player::Update(ViewProjection viewProjection_,Vector3 boss) {
 
 
 	//移動
@@ -87,7 +87,7 @@ void Player::Update(ViewProjection viewProjection_) {
 
 
 	//弾発射処理
-	Attack(viewProjection_);
+	Attack(viewProjection_,boss);
 
 	//弾更新
 	//複数
@@ -110,7 +110,15 @@ void Player::Draw(ViewProjection viewProjection_) {
 	}
 }
 
-void Player::Attack(ViewProjection viewProjection_) {
+void Player::Attack(ViewProjection viewProjection_,Vector3 boss) {
+	Vector3 bulletVecTmp = boss - worldTransform_.translation_;
+	bulletVecTmp.normalize();
+	//右ベクトル
+	Vector3 bulletRight = yTmpVec.cross(bulletVecTmp);
+	bulletRight.normalize();
+	//正面ベクトル
+	Vector3 bulletFront = bulletRight.cross(yTmpVec);
+	bulletFront.normalize();
 	if (input_->PushKey(DIK_B)) {
 		if (coolTime == 0) {
 			//弾を生成し初期化
@@ -119,7 +127,7 @@ void Player::Attack(ViewProjection viewProjection_) {
 
 			//単発
 			/*PlayerBullet* newBullet = new PlayerBullet();*/
-			newBullet->Initialize(model_, AffinTrans::GetWorldtransform(worldTransform_.matWorld_), frontVec);
+			newBullet->Initialize(model_, AffinTrans::GetWorldtransform(worldTransform_.matWorld_), bulletFront);
 
 			//弾の登録
 		   //複数
@@ -129,7 +137,7 @@ void Player::Attack(ViewProjection viewProjection_) {
 			/*bullet_.reset(newBullet);*/
 
 			//クールタイムを設定
-			coolTime = 12;
+			coolTime = 10;
 		}
 		else if (coolTime > 0) {
 			coolTime--;

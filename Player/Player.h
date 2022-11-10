@@ -21,7 +21,7 @@ class Player {
 	///< summary>
 	///‰Šú‰»
 	///</summary>
-	void Update(ViewProjection viewProjection_);
+	void Update(ViewProjection viewProjection_,Vector3 boss);
 
 	///< summary>
 	///‰Šú‰»
@@ -31,7 +31,7 @@ class Player {
 	///< summary>
 	///‰Šú‰»
 	///</summary>
-	void Attack(ViewProjection viewProjection_);
+	void Attack(ViewProjection viewProjection_,Vector3 boss);
 	void Move(ViewProjection viewProjection_);
 
 	//ƒLƒƒƒ‰‚ÌŒü‚«‚É‰‚¶‚½•ûŒü‚É‹…‚ğ‚¾‚·

@@ -33,6 +33,8 @@ public:
 
 	void Attack(Vector3 Player);
 
+	Vector3 GetWorldPos();
+
 private:
 	//ワールド変換データ
 	WorldTransform worldTransform_;
@@ -46,9 +48,12 @@ private:
 
 	///------------------------------------------///
 	//メンバ変数
-	bool isJump = false;
+	int isJump = 0;
 	//攻撃クールタイム
 	int coolTime;
 	//攻撃パターン
 	int attackNum;
+	float jumpPower = 0;
+	int waitTime = 0;
+	int attackTmp;
 };
